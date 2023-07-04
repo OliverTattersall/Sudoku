@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "14e37ea985638ce64c07be4cd89c516d409313f6b6d71035a37220bf34feb708"
+            "sha256": "0414838b6363206521c1ea106c8a53740c190d005786ed23ab8187699c1c472e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -58,6 +58,14 @@
             ],
             "index": "pypi",
             "version": "==2.9.6"
+        },
+        "py-sudoku": {
+            "hashes": [
+                "sha256:693c03da1220553ffebb7023d32725c83d6a56d0b4101de354ed4e91accf8de1",
+                "sha256:c5127b9bfb9d3acce5f38634ad1d7980e7d411603d80b193eccfe54ec761a580"
+            ],
+            "index": "pypi",
+            "version": "==1.0.3"
         },
         "python-dotenv": {
             "hashes": [
