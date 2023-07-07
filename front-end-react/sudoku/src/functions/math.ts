@@ -1,0 +1,1 @@
+export const integerDivide = (num, div) => Math.floor(num/div);

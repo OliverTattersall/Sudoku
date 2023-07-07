@@ -1,6 +1,8 @@
 import { useQuery } from "react-query"
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { SudokuCell } from "./SudokuCell.tsx";
+import { integerDivide } from "../functions/math.ts";
 
 const fetchUsers = async ({queryKey}) => {
     const [_, diff] = queryKey;
@@ -10,58 +12,64 @@ const fetchUsers = async ({queryKey}) => {
     return await axios.get("https://sudoku-api-django.vercel.app/puzzle/?difficulty="+diff);
 }
 
-const SudokuCell = ({highlighted = false, value, onChange, onClick}) => {
-
-    // console.log(highlighted);
-    return (
-        <td className={"border-2 border-slate-400 " + (highlighted ? "bg-red-500/50" : "")}>
-            <div className="w-12 h-12">
-                <textarea className={" h-full w-full resize-none text-center " + (highlighted ? "bg-red-500/50" : "")} 
-                value={value} 
-                onChange={onChange} 
-                onClick={onClick}
-                />
-                
-            </div>
-            
-        </td>
-    );
-
-}
-
 interface SudokuProps {
     diff: string
     rerender: boolean
+    endGame: Function
 }
 
-export const Sudoku = ({diff, rerender}:SudokuProps) => {
-    const {data, isLoading, isError, status}= useQuery(["puzzle", diff], fetchUsers)
-    console.log(diff, rerender);
+export const Sudoku = ({diff, rerender, endGame}:SudokuProps) => {
+    const {data, isLoading, isError, status, refetch}= useQuery(["puzzle", diff], fetchUsers)
+    // console.log(diff, rerender);
     const [sudokuGrid, updateGrid] = useState([0,0,0,0,0,0,0,0,0].map(x => [0,0,0,0,0,0,0,0,0]))
+    const [disabledGrid, updateDisableGrid] = useState([false, false, false, false, false, false, false, false, false].map(x => [false, false, false, false, false, false, false, false, false]))
+    const [count, updateCount] = useState(0);
     const [selectedCell, updateSelectedCell] = useState([-1,-1]);
     useEffect(()=>{
         console.log('triggered');
+        if(diff!==''){
+            refetch();
+        }
         if(!isLoading){
             if(diff!==''){
                 let tempgrid= data?.data[diff].split(',')
+                let tempDisGrid = [];
+                let tempcount = 0;
                 for(let i = 0; i < 9; i++){
+                    
                     tempgrid[i] = tempgrid[i].split('').map(x => parseInt(x))
+                    tempDisGrid.push( tempgrid[i].map(x => !!x) );
+                    tempcount += tempgrid[i].reduce((x, y) => x + !!y, 0)
                 }
-
-                console.log(tempgrid)
+                
+                // console.log(tempgrid, tempcount)
+                updateCount(tempcount);
                 updateGrid(tempgrid);
+                updateDisableGrid(tempDisGrid);
                 updateSelectedCell([-1,-1]);
             }
             
         }
-    }, [diff, rerender])
+    }, [diff, rerender, isLoading])
+
+    useEffect(()=>{
+        if(count===81){
+            console.log('yay')
+            endGame();
+        }
+    }, [count])
 
     const changeSudoku = (rowId, colId) => ({nativeEvent}) =>{
-        let cleanData = nativeEvent.data.replace(/[^0-9]/g,'')
-        // let newGrid = sudokuGrid;
-        // newGrid[rowId][colId] = parseInt(cleanData);
-        updateGrid(prev => prev.map((row, rid) => row.map((col, cid) => (rowId===rid && colId===cid) ? parseInt(cleanData) : prev[rid][cid])
+        // console.log(nativeEvent.data);
+        let cleanData = nativeEvent.data?.replace(/[^0-9]/g,'')
+        updateGrid(prev => prev.map((row, rid) => row.map(
+            (col, cid) => (rowId===rid && colId===cid) ? parseInt(cleanData) : prev[rid][cid]
+            )
         ));
+        
+        if(cleanData){
+            updateCount(prev => prev + 1);
+        }
         // console.log(rowId, colId, newGrid[rowId][colId])
     } 
 
@@ -70,9 +78,8 @@ export const Sudoku = ({diff, rerender}:SudokuProps) => {
         updateSelectedCell([rowId, colId])
     }
 
-    const integerDivide = (num, div) => Math.floor(num/div);
 
-    console.log(selectedCell);
+    // console.log(selectedCell);
 
     return (
     <>
@@ -92,6 +99,7 @@ export const Sudoku = ({diff, rerender}:SudokuProps) => {
                                     value={sudokuGrid[rowId][colId]} 
                                     onChange={changeSudoku(rowId, colId)}
                                     onClick={onClick(rowId, colId)}
+                                    disabled={disabledGrid[rowId][colId]}
                                     />
                                 );
                             })}
