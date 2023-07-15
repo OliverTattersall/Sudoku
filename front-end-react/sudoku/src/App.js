@@ -4,6 +4,7 @@ import './App.css';
 import { Sudoku } from './components/Sudoku.tsx';
 import Stopwatch from './components/Stopwatch.tsx';
 import { integerDivide } from './functions/math.ts';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [diff, updateDiff] = useState('');
