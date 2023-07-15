@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "../styling/stopwatch.css";
 
+interface StopwatchProps{
+    running:number
+    pause:boolean
+}
 
 
-export const Stopwatch = ({running}) => {
+export const Stopwatch = ({running, pause}:StopwatchProps) => {
   // state to store time
     const [time, setTime] = useState(0);
-    console.log(running)
+    // console.log(running)
     // state to check stopwatch running or not
     const [isRunning, setIsRunning] = useState(running);
 
@@ -26,8 +30,12 @@ export const Stopwatch = ({running}) => {
         
     }, [running])
 
+    useEffect(()=>{
+        setIsRunning(running && Number(!pause));
+    },[pause])
+
     useEffect(() => {
-        let intervalId;
+        let intervalId:any;
         if (isRunning) {
             // setting time from 0 to 1 every 10 milisecond using javascript setInterval method
             intervalId = setInterval(() => setTime(time + 1), 10);
@@ -46,16 +54,17 @@ export const Stopwatch = ({running}) => {
 
     // Method to start and stop timer
     const startAndStop = () => {
-        setIsRunning(!isRunning);
+        setIsRunning(0);
     };
 
     
     return (
         <div className="stopwatch-container">
-        <p className="stopwatch-time">
+        {time ? <p className="stopwatch-time">
+            
             {minutes.toString().padStart(2, "0")}:
             {seconds.toString().padStart(2, "0")}
-        </p>
+        </p>: '' }
         <div className="stopwatch-buttons">
         </div>
         </div>

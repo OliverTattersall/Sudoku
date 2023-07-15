@@ -1,8 +1,9 @@
 import { useQuery } from "react-query"
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { SudokuCell } from "./SudokuCell.tsx";
-import { integerDivide } from "../functions/math.ts";
+import { SudokuCell } from "./SudokuCell";
+import { integerDivide } from "../functions/math";
+import { checkGrid } from "../functions/sudoku";
 
 const fetchUsers = async ({queryKey}) => {
     const [_, diff] = queryKey;
@@ -16,13 +17,15 @@ interface SudokuProps {
     diff: string
     rerender: boolean
     endGame: Function
+    resumeGame: Function
 }
 
-export const Sudoku = ({diff, rerender, endGame}:SudokuProps) => {
+export const Sudoku = ({diff, rerender, endGame, resumeGame}:SudokuProps) => {
     const {data, isLoading, isError, status, refetch}= useQuery(["puzzle", diff], fetchUsers)
     // console.log(diff, rerender);
     const [sudokuGrid, updateGrid] = useState([0,0,0,0,0,0,0,0,0].map(x => [0,0,0,0,0,0,0,0,0]))
     const [disabledGrid, updateDisableGrid] = useState([false, false, false, false, false, false, false, false, false].map(x => [false, false, false, false, false, false, false, false, false]))
+    const [errorGrid, updateErrorGrid] = useState([false, false, false, false, false, false, false, false, false].map(x => [false, false, false, false, false, false, false, false, false]));
     const [count, updateCount] = useState(0);
     const [selectedCell, updateSelectedCell] = useState([-1,-1]);
     useEffect(()=>{
@@ -54,10 +57,22 @@ export const Sudoku = ({diff, rerender, endGame}:SudokuProps) => {
 
     useEffect(()=>{
         if(count===81){
-            console.log('yay')
+            const {tempcount, errorGrid:tempError} = checkGrid(sudokuGrid);
+            if(!tempcount){
+                alert('Nice Job!')
+                console.log('yay')
+            }else{
+                alert('Seems to be a couple errors')
+                console.log("boo")
+                updateErrorGrid(tempError);
+            }
+           
             endGame();
+        }else{
+            resumeGame();
         }
     }, [count])
+    console.log(count)
 
     const changeSudoku = (rowId, colId) => ({nativeEvent}) =>{
         // console.log(nativeEvent.data);
@@ -68,8 +83,28 @@ export const Sudoku = ({diff, rerender, endGame}:SudokuProps) => {
         ));
         
         if(cleanData){
-            updateCount(prev => prev + 1);
+            
         }
+
+        let tempcount = 0;
+        for(let row:number = 0; row < 9; row++){
+            for(let col:number = 0; col < 9; col++){
+                if(sudokuGrid[row][col]){
+                    tempcount++;
+                }
+            }
+        }
+        if(sudokuGrid[rowId][colId]){
+            if(!cleanData){
+                tempcount--;
+            }
+        }else{
+            if(cleanData){
+                tempcount++;
+            }
+        }
+        updateCount(tempcount);
+        
         // console.log(rowId, colId, newGrid[rowId][colId])
     } 
 
@@ -84,7 +119,6 @@ export const Sudoku = ({diff, rerender, endGame}:SudokuProps) => {
     return (
     <>
         <div className="max-w-sm mx-auto ">
-            <h1>Sudoku</h1>
             <table className="border-collapse">
                 <tbody>
                     {sudokuGrid.map((row, rowId) => {
@@ -100,6 +134,7 @@ export const Sudoku = ({diff, rerender, endGame}:SudokuProps) => {
                                     onChange={changeSudoku(rowId, colId)}
                                     onClick={onClick(rowId, colId)}
                                     disabled={disabledGrid[rowId][colId]}
+                                    error={errorGrid[rowId][colId]}
                                     />
                                 );
                             })}

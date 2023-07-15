@@ -9,9 +9,11 @@ function App() {
   const [diff, updateDiff] = useState('');
   const [rerender, setRerender] = useState(true);
   const [runningGame, updateRunning] = useState(0)
+  const [finishedGame, updateFinishedGame] = useState(false);
 
   const onNewGame = (newdiff) => () => {
     // console.log('hello')
+    updateFinishedGame(false);
     updateRunning(prev => integerDivide(prev, 2)*2+2);
     if(newdiff === diff){
       setRerender(prev => !prev);
@@ -22,32 +24,23 @@ function App() {
 
   return (
     <>
-    <h1 className="text-3xl font-bold underline max-w-sm mx-auto">
-      Hello world!
+    <h1 className="text-3xl font-bold underline max-w-sm mx-auto text-center">
+      Sudoku
     </h1>
+    <br/>
     <div className='max-w-sm mx-auto'>
-      <Sudoku diff = {diff} rerender={rerender} endGame={()=>(updateRunning(0))}/>
+      
+      <Sudoku 
+      diff = {diff} 
+      rerender={rerender} 
+      endGame={()=>(updateFinishedGame(true))} 
+      resumeGame={()=>(updateFinishedGame(false))}/>
       <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('beginner')}>Beginner</button>
       <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('hard')}>Hard</button>
       <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('easy')}>Easy</button>
-      <Stopwatch running={runningGame}/>
+      <Stopwatch running={runningGame} pause={finishedGame}/>
+      
     </div>
-    {/* <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div> */}
 
     </>
   );
