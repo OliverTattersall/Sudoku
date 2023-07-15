@@ -28,17 +28,24 @@ function App() {
       Sudoku
     </h1>
     <br/>
-    <div className='max-w-sm mx-auto'>
+    <div className='max-w-lg mx-auto'>
+      <div className='inline'>
+        <Sudoku 
+        diff = {diff} 
+        rerender={rerender} 
+        endGame={()=>(updateFinishedGame(true))} 
+        resumeGame={()=>(updateFinishedGame(false))}/>
+      </div>
       
-      <Sudoku 
-      diff = {diff} 
-      rerender={rerender} 
-      endGame={()=>(updateFinishedGame(true))} 
-      resumeGame={()=>(updateFinishedGame(false))}/>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('beginner')}>Beginner</button>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('hard')}>Hard</button>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('easy')}>Easy</button>
-      <Stopwatch running={runningGame} pause={finishedGame}/>
+      <div className='mx-auto content-center'>
+        
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('beginner')}>Beginner</button>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('easy')}>Easy</button>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('medium')}>Medium</button>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('hard')}>Hard</button>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onNewGame('veryhard')}>Evil</button>
+        <Stopwatch running={runningGame} pause={finishedGame}/>
+      </div>
       
     </div>
 

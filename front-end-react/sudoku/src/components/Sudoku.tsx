@@ -27,6 +27,7 @@ export const Sudoku = ({diff, rerender, endGame, resumeGame}:SudokuProps) => {
     const [disabledGrid, updateDisableGrid] = useState([false, false, false, false, false, false, false, false, false].map(x => [false, false, false, false, false, false, false, false, false]))
     const [errorGrid, updateErrorGrid] = useState([false, false, false, false, false, false, false, false, false].map(x => [false, false, false, false, false, false, false, false, false]));
     const [count, updateCount] = useState(0);
+    const [errorCount, updateErrorCount] = useState(0);
     const [selectedCell, updateSelectedCell] = useState([-1,-1]);
     useEffect(()=>{
         console.log('triggered');
@@ -57,16 +58,23 @@ export const Sudoku = ({diff, rerender, endGame, resumeGame}:SudokuProps) => {
 
     useEffect(()=>{
         if(count===81){
+            
+            let message = '';
             const {tempcount, errorGrid:tempError} = checkGrid(sudokuGrid);
+            updateErrorCount(tempcount);
             if(!tempcount){
-                alert('Nice Job!')
-                console.log('yay')
+                // alert('Nice Job!');
+                message = 'Nice Job!'
+                console.log('yay');
             }else{
-                alert('Seems to be a couple errors')
-                console.log("boo")
+                message = 'Seems to be a couple error :('
+                // alert('Seems to be a couple errors');
+                console.log("boo");
                 updateErrorGrid(tempError);
             }
-           
+            setInterval(()=>{
+                alert(message);
+            }, 500)
             endGame();
         }else{
             resumeGame();
@@ -83,7 +91,9 @@ export const Sudoku = ({diff, rerender, endGame, resumeGame}:SudokuProps) => {
         ));
         
         if(cleanData){
-            
+            if(errorGrid[rowId][colId]){
+
+            }
         }
 
         let tempcount = 0;
@@ -113,12 +123,20 @@ export const Sudoku = ({diff, rerender, endGame, resumeGame}:SudokuProps) => {
         updateSelectedCell([rowId, colId])
     }
 
+    const clearError = () => {
+        updateGrid(prev => prev.map((row, rid) => row.map(
+            (col, cid) => errorGrid[rid][cid] && !disabledGrid[rid][cid] ? 0 : prev[rid][cid]
+        )))
+        updateErrorGrid([false, false, false, false, false, false, false, false, false].map(x => [false, false, false, false, false, false, false, false, false]));
+        updateErrorCount(0);
+
+    }
 
     // console.log(selectedCell);
 
     return (
     <>
-        <div className="max-w-sm mx-auto ">
+        {/* <div className="max-w-lg mx-auto "> */}
             <table className="border-collapse">
                 <tbody>
                     {sudokuGrid.map((row, rowId) => {
@@ -142,7 +160,14 @@ export const Sudoku = ({diff, rerender, endGame, resumeGame}:SudokuProps) => {
                     })}
                 </tbody>
             </table>
-        </div>
+            {errorCount ? 
+            <button 
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            onClick={clearError}
+            >Clear error boxes</button>
+            : null}
+            
+        {/* </div> */}
     </>
     
     );
